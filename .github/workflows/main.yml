@@ -1,0 +1,65 @@
+name: Main workflow
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  style:
+    name: Code checks
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
+      - name: install code check requirements
+        run: pip install black flake8 mypy radon
+      - name: check code formatting with black
+        run: black --check .
+      - name: check code quality with flake8 and radon
+        run: flake8 --ignore=E501,W503 hofs test --radon-max-cc 10
+      - name: check types with mypy
+        run: mypy hofs test --disallow-untyped-defs
+
+  ubuntu-tests:
+    name: Run tests on Ubuntu 20.04
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
+      - name: install coverage (ubuntu)
+        run: pip install coverage
+      - name: run common tests (ubuntu)
+        run: coverage run --branch -m unittest discover -s test.common
+      - name: check code coverage by common tests (ubuntu)
+        run: coverage report --include="hofs/*" --fail-under=100
+      - name: run posix tests (ubuntu)
+        run: python -m unittest discover -s test.posix
+
+  windows-tests:
+    name: Run tests on Windows Server 2022
+    runs-on: windows-2022
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
+      - name: install coverage (windows)
+        run: pip install coverage
+      - name: run common tests (windows)
+        run: coverage run --branch -m unittest discover -s test.common
+      - name: check code coverage by common tests (windows)
+        run: coverage report --include="hofs/*" --fail-under=100
+      - name: run win tests (windows)
+        run: python -m unittest discover -s test.win

@@ -1,0 +1,24 @@
+name: Publish docs via GitHub pages
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  publish-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.9
+      - name: Install sphinx
+        run: pip install sphinx
+      - name: Build html docs
+        run: sphinx-build -b html docs/source docs/build/html
+      - name: Publish html docs
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/build/html

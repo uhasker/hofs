@@ -1,0 +1,2 @@
+class HofsException(Exception):
+    pass

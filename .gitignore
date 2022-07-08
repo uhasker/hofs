@@ -1,0 +1,17 @@
+.idea/
+
+__pycache__/
+
+venv/
+
+.mypy_cache/
+
+.coverage
+htmlcov/
+
+hofs.egg-info/
+build/
+dist/
+
+docs/build
+docs/source/_autosummary
