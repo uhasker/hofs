@@ -365,6 +365,19 @@ class FileIterator(FunctionalIterator["File"]):
         """
         return self.map(lambda file: file.name)
 
+    def include(self, file_likes: List[str]) -> "FileIterator":
+        """
+        Include all files that match a given list of file-like objects.
+
+        All files that don't match the list are thereby excluded.
+
+        :param file_likes: The list of file-like objects.
+        :return: A file iterator containing the included files.
+        """
+        return FileIterator(
+            self.filter(lambda file: path_matches_one_of(file.path, file_likes))
+        )
+
     def exclude(self, file_likes: List[str]) -> "FileIterator":
         """
         Exclude all files that match a given list of file-like objects.
@@ -375,6 +388,22 @@ class FileIterator(FunctionalIterator["File"]):
         return FileIterator(
             self.filter(lambda file: not path_matches_one_of(file.path, file_likes))
         )
+
+    def include_or_exclude(
+        self, file_likes: List[str], include: bool
+    ) -> "FileIterator":
+        """
+        Include or exclude all files that match a given list of file-like objects.
+
+        This is useful e.g. if you have a scenario where you are given a bunch of directories
+        along with a flag specifying whether they should be excluded or included.
+        Without this function you would potentially have to construct two different function chains.
+
+        :param file_likes: The list of file-like objects.
+        :param include: True, if file_likes should be included, False otherwise.
+        :return: A file iterator containing the non-excluded files.
+        """
+        return self.include(file_likes) if include else self.exclude(file_likes)
 
     def text_file_iterator(self) -> "TextFileIterator":
         return TextFileIterator(self.map(lambda file: file.text_file()))

@@ -106,8 +106,32 @@ class TestFileIterator(TestCase):
             [1, 2, 3, 4, 0],
         )
 
+    def test_include(self) -> None:
+        self.assertEqual(
+            fs.Dir(BASE_DIR_PATH).files.include([SUB_DIR_PATH]).map_path().list(),
+            [D_TXT_PATH, E_TXT_PATH, EMPTY_TXT_PATH, RNDBIN2_PATH],
+        )
+
     def test_exclude(self) -> None:
         self.assertEqual(
             fs.Dir(BASE_DIR_PATH).files.exclude([SUB_DIR_PATH]).map_path().list(),
+            [A_TXT_PATH, B_TXT_PATH, C_TXT2_PATH, EMPTYBIN_PATH, RNDBIN1_PATH],
+        )
+
+    def test_exclude_or_include_true(self) -> None:
+        self.assertEqual(
+            fs.Dir(BASE_DIR_PATH)
+            .files.include_or_exclude([SUB_DIR_PATH], True)
+            .map_path()
+            .list(),
+            [D_TXT_PATH, E_TXT_PATH, EMPTY_TXT_PATH, RNDBIN2_PATH],
+        )
+
+    def test_exclude_or_include_false(self) -> None:
+        self.assertEqual(
+            fs.Dir(BASE_DIR_PATH)
+            .files.include_or_exclude([SUB_DIR_PATH], False)
+            .map_path()
+            .list(),
             [A_TXT_PATH, B_TXT_PATH, C_TXT2_PATH, EMPTYBIN_PATH, RNDBIN1_PATH],
         )
