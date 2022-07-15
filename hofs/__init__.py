@@ -1,23 +1,25 @@
-from hofs.exceptions import HofsException
-from hofs.file_like import FileLike, File, TextFile, Dir, FileIterator
-from hofs.file_size import FileSize, FileSizeUnit
-from hofs.functional import FunctionalIterator
-from hofs.paths import (
-    file_like_exists,
-    file_exists,
+from hofs.common.functional import FunctionalIterator
+from hofs.common.table import Table, table_from_rows
+from hofs.exceptions.exceptions import HofsException
+from hofs.filelike.file_like import FileLike
+from hofs.filelike.file_likes import Dir, File, FileIterator
+from hofs.filelike.text_file import TextFile
+from hofs.filesize.file_size import FileSize
+from hofs.filesize.file_size_unit import FileSizeUnit
+from hofs.paths.paths import (
     dir_exists,
+    expand_path,
+    file_exists,
+    file_like_exists,
+    file_like_name,
     path_is_absolute,
     path_is_relative,
     path_matches,
-    path_matches_one_of,
-    path_matches_regex,
     path_matches_compiled_regex,
     path_matches_glob,
-    file_like_name,
+    path_matches_regex,
     relative_path,
-    expand_path,
 )
-from hofs.table import Table
 
 __all__ = [
     # exceptions
@@ -25,12 +27,12 @@ __all__ = [
     # file
     "FileLike",
     "File",
-    "TextFile",
     "Dir",
     "FileIterator",
+    "TextFile",
     # file_size
-    "FileSizeUnit",
     "FileSize",
+    "FileSizeUnit",
     # functional,
     "FunctionalIterator",
     # paths
@@ -40,7 +42,7 @@ __all__ = [
     "path_is_absolute",
     "path_is_relative",
     "path_matches",
-    "path_matches_one_of",
+    "path_matches",
     "path_matches_regex",
     "path_matches_compiled_regex",
     "path_matches_glob",
@@ -49,4 +51,5 @@ __all__ = [
     "expand_path",
     # table
     "Table",
+    "table_from_rows",
 ]

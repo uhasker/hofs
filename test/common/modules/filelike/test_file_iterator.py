@@ -1,19 +1,19 @@
-from unittest import TestCase
-
-import hofs as fs
 from test.test_fs_values import (
-    BASE_DIR_PATH,
     A_TXT_PATH,
     B_TXT_PATH,
+    BASE_DIR_PATH,
+    C_TXT2_PATH,
+    D_TXT_PATH,
     E_TXT_PATH,
     EMPTY_TXT_PATH,
-    D_TXT_PATH,
-    C_TXT2_PATH,
     EMPTYBIN_PATH,
     RNDBIN1_PATH,
     RNDBIN2_PATH,
     SUB_DIR_PATH,
 )
+from unittest import TestCase
+
+import hofs as fs
 
 
 class TestFileIterator(TestCase):
@@ -134,4 +134,64 @@ class TestFileIterator(TestCase):
             .map_path()
             .list(),
             [A_TXT_PATH, B_TXT_PATH, C_TXT2_PATH, EMPTYBIN_PATH, RNDBIN1_PATH],
+        )
+
+    def test_include_glob(self) -> None:
+        self.assertEqual(
+            fs.Dir(BASE_DIR_PATH).files.include_glob(["*.txt"]).map_path().list(),
+            [A_TXT_PATH, B_TXT_PATH, D_TXT_PATH, E_TXT_PATH, EMPTY_TXT_PATH],
+        )
+
+    def test_exclude_glob(self) -> None:
+        self.assertEqual(
+            fs.Dir(BASE_DIR_PATH).files.exclude_glob(["*.txt"]).map_path().list(),
+            [C_TXT2_PATH, EMPTYBIN_PATH, RNDBIN1_PATH, RNDBIN2_PATH],
+        )
+
+    def test_include_or_exclude_glob_true(self) -> None:
+        self.assertEqual(
+            fs.Dir(BASE_DIR_PATH)
+            .files.include_or_exclude_glob(["*.txt"], True)
+            .map_path()
+            .list(),
+            [A_TXT_PATH, B_TXT_PATH, D_TXT_PATH, E_TXT_PATH, EMPTY_TXT_PATH],
+        )
+
+    def test_include_or_exclude_glob_false(self) -> None:
+        self.assertEqual(
+            fs.Dir(BASE_DIR_PATH)
+            .files.include_or_exclude_glob(["*.txt"], False)
+            .map_path()
+            .list(),
+            [C_TXT2_PATH, EMPTYBIN_PATH, RNDBIN1_PATH, RNDBIN2_PATH],
+        )
+
+    def test_include_regex(self) -> None:
+        self.assertEqual(
+            fs.Dir(BASE_DIR_PATH).files.include_regex([r".*\.txt"]).map_path().list(),
+            [A_TXT_PATH, B_TXT_PATH, D_TXT_PATH, E_TXT_PATH, EMPTY_TXT_PATH],
+        )
+
+    def test_exclude_regex(self) -> None:
+        self.assertEqual(
+            fs.Dir(BASE_DIR_PATH).files.exclude_regex([r".*\.txt"]).map_path().list(),
+            [C_TXT2_PATH, EMPTYBIN_PATH, RNDBIN1_PATH, RNDBIN2_PATH],
+        )
+
+    def test_include_or_exclude_regex_true(self) -> None:
+        self.assertEqual(
+            fs.Dir(BASE_DIR_PATH)
+            .files.include_or_exclude_regex([r".*\.txt"], True)
+            .map_path()
+            .list(),
+            [A_TXT_PATH, B_TXT_PATH, D_TXT_PATH, E_TXT_PATH, EMPTY_TXT_PATH],
+        )
+
+    def test_include_or_exclude_regex_false(self) -> None:
+        self.assertEqual(
+            fs.Dir(BASE_DIR_PATH)
+            .files.include_or_exclude_regex([r".*\.txt"], False)
+            .map_path()
+            .list(),
+            [C_TXT2_PATH, EMPTYBIN_PATH, RNDBIN1_PATH, RNDBIN2_PATH],
         )

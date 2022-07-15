@@ -1,20 +1,20 @@
+from test.test_fs_values import (
+    A_TXT_PATH,
+    B_TXT_PATH,
+    BAD_OTHER_DIR_PATH,
+    BASE_DIR_PATH,
+    C_TXT2_PATH,
+    D_TXT_PATH,
+    E_TXT_PATH,
+    EMPTY_TXT_PATH,
+    EMPTYBIN_PATH,
+    RNDBIN1_PATH,
+    RNDBIN2_PATH,
+    SUB_DIR_PATH,
+)
 from unittest import TestCase
 
 import hofs as fs
-from test.test_fs_values import (
-    E_TXT_PATH,
-    D_TXT_PATH,
-    SUB_DIR_PATH,
-    BASE_DIR_PATH,
-    RNDBIN2_PATH,
-    RNDBIN1_PATH,
-    C_TXT2_PATH,
-    B_TXT_PATH,
-    A_TXT_PATH,
-    BAD_OTHER_DIR_PATH,
-    EMPTYBIN_PATH,
-    EMPTY_TXT_PATH,
-)
 
 
 class DirExceptionTest(TestCase):
@@ -82,7 +82,7 @@ class DirDirsTest(TestCase):
 
 class DirStrTest(TestCase):
     def test_str(self) -> None:
-        self.assertEqual(str(fs.Dir(BASE_DIR_PATH)), f"Dir({BASE_DIR_PATH})")
+        self.assertEqual(str(fs.Dir(BASE_DIR_PATH)), f'Dir("{BASE_DIR_PATH}")')
 
     def test_repr(self) -> None:
-        self.assertEqual(repr(fs.Dir(BASE_DIR_PATH)), f"Dir({BASE_DIR_PATH})")
+        self.assertEqual(repr(fs.Dir(BASE_DIR_PATH)), f'Dir("{BASE_DIR_PATH}")')

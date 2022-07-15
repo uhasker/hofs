@@ -1,7 +1,7 @@
+import fnmatch
 import os
 import re
-import fnmatch
-from typing import List
+from typing import List, Union
 
 
 def file_like_exists(path: str) -> bool:
@@ -56,63 +56,73 @@ def path_is_relative(path: str) -> bool:
     return not path_is_absolute(path)
 
 
-def path_matches(path: str, file_like_path: str) -> bool:
-    """
-    Check whether a path matches a file-like path (i.e. is either equal or is contained in the path).
-
-    :param path: The given path.
-    :param file_like_path: The file-like path.
-    :return: True, if the path matches, False otherwise.
-    """
-    return os.path.commonpath([path, file_like_path]) == file_like_path
-
-
-def path_matches_one_of(path: str, file_like_paths: List[str]) -> bool:
+def path_matches(path: str, base_paths: Union[str, List[str]]) -> bool:
     """
     Check whether a path matches one of the file-like paths.
 
     :param path: The given path.
-    :param file_like_paths: The file-like paths.
+    :param base_paths: The file-like paths.
     :return: True, if the path matches, False otherwise.
     """
-    for base_path in file_like_paths:
-        if path_matches(path, base_path):
+    if isinstance(base_paths, str):
+        base_paths = [base_paths]
+
+    base_paths = expand_paths(base_paths)
+    for base_path in base_paths:
+        if os.path.commonpath([path, base_path]) == base_path:
             return True
     return False
 
 
-def path_matches_regex(path: str, regex: str) -> bool:
+def path_matches_regex(path: str, regexes: Union[str, List[str]]) -> bool:
     """
     Check whether a path matches a regular expression.
 
     :param path: The given path.
-    :param regex: The regular expression.
+    :param regexes: The regular expression.
     :return: True, if the path matches, False otherwise.
     """
-    compiled_regex = re.compile(regex)
-    return path_matches_compiled_regex(path, compiled_regex)
+    if isinstance(regexes, str):
+        regexes = [regexes]
+
+    compiled_regexes = [re.compile(regex) for regex in regexes]
+    return path_matches_compiled_regex(path, compiled_regexes)
 
 
-def path_matches_compiled_regex(path: str, compiled_regex: re.Pattern) -> bool:
+def path_matches_compiled_regex(
+    path: str, compiled_regexes: Union[re.Pattern, List[re.Pattern]]
+) -> bool:
     """
     Check whether a path matches a compiled regular expression.
 
     :param path: The given path.
-    :param compiled_regex: The compiled regular expression.
+    :param compiled_regexes: The compiled regular expression.
     :return: True, if the path matches, False otherwise.
     """
-    return bool(compiled_regex.fullmatch(path))
+    if isinstance(compiled_regexes, re.Pattern):
+        compiled_regexes = [compiled_regexes]
+
+    for compiled_regex in compiled_regexes:
+        if compiled_regex.fullmatch(path):
+            return True
+    return False
 
 
-def path_matches_glob(path: str, pattern: str) -> bool:
+def path_matches_glob(path: str, patterns: Union[str, List[str]]) -> bool:
     """
     Check whether a path matches a glob pattern.
 
     :param path: The given path.
-    :param pattern: The glob pattern.
+    :param patterns: The glob pattern.
     :return: True, if the path matches, False otherwise.
     """
-    return fnmatch.fnmatch(path, pattern)
+    if isinstance(patterns, str):
+        patterns = [patterns]
+
+    for pattern in patterns:
+        if fnmatch.fnmatch(path, pattern):
+            return True
+    return False
 
 
 def file_like_name(path: str) -> str:
@@ -147,3 +157,7 @@ def expand_path(path: str) -> str:
     path = os.path.expanduser(path)
     path = os.path.expandvars(path)
     return os.path.abspath(path)
+
+
+def expand_paths(paths: List[str]) -> List[str]:
+    return [expand_path(path) for path in paths]

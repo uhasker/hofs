@@ -1,7 +1,7 @@
 import heapq
 from collections.abc import Iterator
 from functools import reduce
-from typing import TypeVar, Callable, List, Iterable, Any
+from typing import Any, Callable, Iterable, List, TypeVar
 
 T = TypeVar("T")
 
@@ -14,6 +14,9 @@ class FunctionalIterator(Iterator[T]):
     def __next__(self) -> T:
         return next(self.it)
 
+    def list(self) -> List[T]:
+        return list(self)
+
     def filter(self, fun: Callable[[T], bool]) -> "FunctionalIterator[T]":
         return FunctionalIterator(filter(fun, self))
 
@@ -23,20 +26,17 @@ class FunctionalIterator(Iterator[T]):
     def reduce(self, fun: Callable[[Any, T], T], start: Any) -> Any:
         return reduce(fun, self, start)
 
-    def sum(self) -> int:
-        return self.reduce(lambda acc, val: acc + val, 0)
-
     def len(self) -> int:
         return self.reduce(lambda acc, val: acc + 1, 0)
+
+    def sum(self) -> int:
+        return self.reduce(lambda acc, val: acc + val, 0)
 
     def min(self) -> int:
         return min(self)  # type: ignore
 
     def max(self) -> int:
         return max(self)  # type: ignore
-
-    def list(self) -> List[T]:
-        return list(self)
 
     def sort_asc(self) -> List[T]:
         return sorted(self)  # type: ignore

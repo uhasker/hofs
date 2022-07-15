@@ -1,7 +1,7 @@
+from test.test_fs_values import BASE_DIR_PATH
 from unittest import TestCase
 
 import hofs as fs
-from test.test_fs_values import BASE_DIR_PATH
 
 
 class TestReadme(TestCase):

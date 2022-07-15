@@ -81,3 +81,11 @@ class TestTable(TestCase):
             repr(self.table),
             '{"cols": {"Col1": ["A", "D"], "Col2": ["B", "E"], "Col3": ["C", "F"]}}',
         )
+
+    def test_table_from_rows(self) -> None:
+        table = fs.table_from_rows(
+            cols=["Col1", "Col2", "Col3"], rows=[["A", "B", "C"], ["D", "E", "F"]]
+        )
+        self.assertEqual(
+            str(table), "Col1 Col2 Col3 \nA    B    C    \nD    E    F    \n"
+        )

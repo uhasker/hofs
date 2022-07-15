@@ -1,39 +1,6 @@
-from enum import Enum
 from typing import Any
 
-from hofs import HofsException
-
-
-class FileSizeUnit(Enum):
-    AUTO = 0
-    BYTE = 1
-    KB = 2
-    MB = 3
-    GB = 4
-    TB = 5
-    KIB = 6
-    MIB = 7
-    GIB = 8
-    TIB = 9
-
-    def __str__(self) -> str:
-        return repr(self)
-
-    def __repr__(self) -> str:
-        if self == FileSizeUnit.AUTO:
-            raise HofsException("FileSizeUnit.AUTO has no string representation")
-
-        return {
-            FileSizeUnit.BYTE: "B",
-            FileSizeUnit.KB: "KB",
-            FileSizeUnit.MB: "MB",
-            FileSizeUnit.GB: "GB",
-            FileSizeUnit.TB: "TB",
-            FileSizeUnit.KIB: "KiB",
-            FileSizeUnit.MIB: "MiB",
-            FileSizeUnit.GIB: "GiB",
-            FileSizeUnit.TIB: "TiB",
-        }[self]
+from hofs.filesize.file_size_unit import FileSizeUnit
 
 
 class FileSize:
@@ -65,9 +32,13 @@ class FileSize:
         if unit != FileSizeUnit.AUTO:
             return unit
 
-        for k, v in FileSize.ConversionValues.items():
+        conversion_values = [(k, v) for k, v in FileSize.ConversionValues.items()]
+        for i in range(len(conversion_values) - 1):
+            k, v = conversion_values[i]
             if self.size_bytes < v:
-                return k
+                best_i = max(i - 1, 0)
+                return conversion_values[best_i][0]
+
         return FileSizeUnit.TB
 
     def size_f(self, unit: FileSizeUnit = FileSizeUnit.AUTO) -> float:

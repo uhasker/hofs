@@ -1,16 +1,16 @@
 import datetime
 import os
+from test.test_fs_values import (
+    A_TXT_PATH,
+    B_TXT_PATH,
+    BAD_F_TXT_PATH,
+    BASE_DIR_PATH,
+    EMPTYBIN_PATH,
+    RNDBIN1_PATH,
+)
 from unittest import TestCase
 
 import hofs as fs
-from test.test_fs_values import (
-    BASE_DIR_PATH,
-    A_TXT_PATH,
-    BAD_F_TXT_PATH,
-    RNDBIN1_PATH,
-    EMPTYBIN_PATH,
-    B_TXT_PATH,
-)
 
 
 class FileExceptionTest(TestCase):
@@ -111,7 +111,7 @@ class FileOperatorsTest(TestCase):
 
 class FileStrTest(TestCase):
     def test_str(self) -> None:
-        self.assertEqual(str(fs.File(A_TXT_PATH)), f"File({A_TXT_PATH})")
+        self.assertEqual(str(fs.File(A_TXT_PATH)), f'File("{A_TXT_PATH}")')
 
     def test_repr(self) -> None:
-        self.assertEqual(repr(fs.File(A_TXT_PATH)), f"File({A_TXT_PATH})")
+        self.assertEqual(repr(fs.File(A_TXT_PATH)), f'File("{A_TXT_PATH}")')

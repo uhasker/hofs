@@ -1,7 +1,7 @@
+from test.test_fs_values import A_TXT_PATH, B_TXT_PATH, EMPTY_TXT_PATH
 from unittest import TestCase
 
 import hofs as fs
-from test.test_fs_values import B_TXT_PATH, EMPTY_TXT_PATH, A_TXT_PATH
 
 
 class TextFileContentTest(TestCase):

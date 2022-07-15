@@ -1,43 +1,20 @@
 import datetime
 import os
 import re
-from abc import ABC, abstractmethod
 from enum import Enum
-from typing import List, Iterator, Any
+from typing import Iterator, List, Union, Any
 
-from hofs.exceptions import HofsException
-from hofs.file_size import FileSize
-from hofs.functional import FunctionalIterator
-from hofs.paths import (
-    expand_path,
-    file_exists,
+from hofs.common.functional import FunctionalIterator
+from hofs.exceptions.exceptions import HofsException
+from hofs.filelike.file_like import FileLike
+from hofs.filesize.file_size import FileSize
+from hofs.paths.paths import (
     dir_exists,
-    path_matches_one_of,
-    file_like_name,
-    path_matches_glob,
+    file_exists,
+    path_matches,
     path_matches_compiled_regex,
+    path_matches_glob,
 )
-
-
-class FileLike(ABC):
-    def __init__(self, path: str) -> None:
-        self.path = expand_path(path)
-        assert os.path.isabs(self.path)
-
-        self.name = file_like_name(self.path)
-
-    @abstractmethod
-    def __str__(self) -> str:
-        raise NotImplementedError  # pragma: no cover
-
-    @abstractmethod
-    def __repr__(self) -> str:
-        raise NotImplementedError  # pragma: no cover
-
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, FileLike):
-            return False
-        return self.path == other.path
 
 
 class File(FileLike):
@@ -113,22 +90,6 @@ class File(FileLike):
 
     mtime = mod_time
 
-    def text_file(self, encoding: str = "utf-8") -> "TextFile":
-        """
-        Get a TextFile object for this file.
-
-        Note that you are responsible to ensure that the underlying file is a valid
-        text file (since this is very expensive to ensure automatically). This function
-        will always succeed, even if the underlying file is not a valid text file.
-        However, when calling functions on the resulting TextFile object, errors will occur.
-
-        :param encoding: The encoding to use.
-        :return: The obtained TextFile object.
-        """
-        return TextFile(self.path, encoding)
-
-    t = text_file
-
     def __lt__(self, other: "File") -> bool:
         return self.size < other.size
 
@@ -136,82 +97,10 @@ class File(FileLike):
         return repr(self)
 
     def __repr__(self) -> str:
-        return f"File({self.path})"
+        return f'File("{self.path}")'
 
-
-class TextFile(File):
-    def __init__(self, path: str, encoding: str = "utf-8"):
-        super().__init__(path)
-
-        self.encoding = encoding
-
-    @property
-    def content(self) -> str:
-        """
-        The content of the file.
-
-        :return: The content.
-        """
-        with open(str(self.path), "r", encoding=self.encoding) as file:
-            return file.read()
-
-    @property
-    def lines(self) -> FunctionalIterator[str]:
-        """
-        The lines of this file.
-
-        :return: A list of lines.
-        """
-        with open(str(self.path), "r", encoding=self.encoding) as file:
-            return FunctionalIterator(file.readlines())
-
-    @property
-    def words(self) -> FunctionalIterator[str]:
-        """
-        The words of this file. It is assumed that words are separated by whitespace.
-
-        :return: A list of words.
-        """
-        return FunctionalIterator(self.content.split())
-
-    @property
-    def char_count(self) -> int:
-        """
-        The number of characters of this file.
-
-        :return: The number of characters.
-        """
-        return len(self.content)
-
-    cc = char_count
-
-    @property
-    def word_count(self) -> int:
-        """
-        The number of words of this file.
-
-        :return: The number of words.
-        """
-        return self.words.len()
-
-    wc = word_count
-
-    @property
-    def line_count(self) -> int:
-        """
-        The number of lines of this file.
-
-        :return: The number of lines.
-        """
-        return self.lines.len()
-
-    lc = line_count
-
-    def __str__(self) -> str:
-        return repr(self)
-
-    def __repr__(self) -> str:
-        return f"TextFile({self.path})"
+    t: Any
+    text_file: Any
 
 
 class _FileTreeWalkIteratorKind(Enum):
@@ -313,7 +202,7 @@ class Dir(FileLike):
         return repr(self)
 
     def __repr__(self) -> str:
-        return f"Dir({self.path})"
+        return f'Dir("{self.path}")'
 
 
 class FileIterator(FunctionalIterator["File"]):
@@ -365,7 +254,7 @@ class FileIterator(FunctionalIterator["File"]):
         """
         return self.map(lambda file: file.name)
 
-    def include(self, file_likes: List[str]) -> "FileIterator":
+    def include(self, file_likes: Union[str, List[str]]) -> "FileIterator":
         """
         Include all files that match a given list of file-like objects.
 
@@ -375,10 +264,10 @@ class FileIterator(FunctionalIterator["File"]):
         :return: A file iterator containing the included files.
         """
         return FileIterator(
-            self.filter(lambda file: path_matches_one_of(file.path, file_likes))
+            self.filter(lambda file: path_matches(file.path, file_likes))
         )
 
-    def exclude(self, file_likes: List[str]) -> "FileIterator":
+    def exclude(self, file_likes: Union[str, List[str]]) -> "FileIterator":
         """
         Exclude all files that match a given list of file-like objects.
 
@@ -386,11 +275,11 @@ class FileIterator(FunctionalIterator["File"]):
         :return: A file iterator containing the non-excluded files.
         """
         return FileIterator(
-            self.filter(lambda file: not path_matches_one_of(file.path, file_likes))
+            self.filter(lambda file: not path_matches(file.path, file_likes))
         )
 
     def include_or_exclude(
-        self, file_likes: List[str], include: bool
+        self, file_likes: Union[str, List[str]], include: bool
     ) -> "FileIterator":
         """
         Include or exclude all files that match a given list of file-like objects.
@@ -405,48 +294,43 @@ class FileIterator(FunctionalIterator["File"]):
         """
         return self.include(file_likes) if include else self.exclude(file_likes)
 
-    def text_file_iterator(self) -> "TextFileIterator":
-        return TextFileIterator(self.map(lambda file: file.text_file()))
+    def include_glob(self, patterns: Union[str, List[str]]) -> "FileIterator":
+        return FileIterator(
+            self.filter(lambda file: path_matches_glob(file.path, patterns))
+        )
 
-    t = text_file_iterator
+    def exclude_glob(self, patterns: Union[str, List[str]]) -> "FileIterator":
+        return FileIterator(
+            self.filter(lambda file: not path_matches_glob(file.path, patterns))
+        )
 
+    def include_or_exclude_glob(
+        self, patterns: Union[str, List[str]], include: bool
+    ) -> "FileIterator":
+        return self.include_glob(patterns) if include else self.exclude_glob(patterns)
 
-class TextFileIterator(FunctionalIterator[TextFile]):
-    def map_char_count(self) -> FunctionalIterator[int]:
-        """
-        Map the files to their character counts.
+    def include_regex(self, regexes: Union[str, List[str]]) -> "FileIterator":
+        compiled_regexes = [re.compile(regex) for regex in regexes]
+        return FileIterator(
+            self.filter(
+                lambda file: path_matches_compiled_regex(file.path, compiled_regexes)
+            )
+        )
 
-        Note that it is implicitly assumed that all the files are valid text files.
-        This function is equivalent to map(lambda file: file.text_file().char_count).
+    def exclude_regex(self, regexes: Union[str, List[str]]) -> "FileIterator":
+        compiled_regexes = [re.compile(regex) for regex in regexes]
+        return FileIterator(
+            self.filter(
+                lambda file: not path_matches_compiled_regex(
+                    file.path, compiled_regexes
+                )
+            )
+        )
 
-        :return: A functional iterator containing the character counts.
-        """
-        return self.map(lambda file: file.char_count)
+    def include_or_exclude_regex(
+        self, regexes: Union[str, List[str]], include: bool
+    ) -> "FileIterator":
+        return self.include_regex(regexes) if include else self.exclude_regex(regexes)
 
-    map_cc = map_char_count
-
-    def map_word_count(self) -> FunctionalIterator[int]:
-        """
-        Map the files to their word counts.
-
-        Note that it is implicitly assumed that all the files are valid text files.
-        This function is equivalent to map(lambda file: file.text_file().word_count).
-
-        :return: A functional iterator containing the word counts.
-        """
-        return self.map(lambda file: file.word_count)
-
-    map_wc = map_word_count
-
-    def map_line_count(self) -> FunctionalIterator[int]:
-        """
-        Map the files to their line counts.
-
-        Note that it is implicitly assumed that all the files are valid text files.
-        This function is equivalent to map(lambda file: file.text_file().line_count).
-
-        :return: A functional iterator containing the line counts.
-        """
-        return self.map(lambda file: file.line_count)
-
-    map_lc = map_line_count
+    text_file_iterator: Any
+    t: Any

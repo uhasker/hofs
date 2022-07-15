@@ -3,9 +3,9 @@ from unittest import TestCase
 import hofs as fs
 
 
-class FileSizeUnitTest(TestCase):
-    def test_exception(self) -> None:
-        self.assertRaises(fs.HofsException, repr, fs.FileSizeUnit.AUTO)
+class FileSizeBytesTest(TestCase):
+    def test_size_f_auto(self) -> None:
+        self.assertEqual(fs.FileSize(size_bytes=64).size_f(), 64.0)
 
 
 class FileSizeTest(TestCase):
@@ -28,16 +28,19 @@ class FileSizeTest(TestCase):
         self.assertEqual(fs.FileSize(450) + self.file_size, fs.FileSize(2450))
 
     def test_size_f_auto(self) -> None:
-        self.assertEqual(self.file_size.size_f(fs.FileSizeUnit.AUTO), 0.002)
+        self.assertEqual(self.file_size.size_f(fs.FileSizeUnit.AUTO), 2.0)
 
     def test_size_f_kb(self) -> None:
         self.assertEqual(self.file_size.size_f(fs.FileSizeUnit.KB), 2.0)
 
     def test_size_f_tb(self) -> None:
-        self.assertEqual(fs.FileSize(int(1e15)).size_f(fs.FileSizeUnit.AUTO), 1000.0)
+        self.assertEqual(
+            fs.FileSize(int(1e15)).size_f(fs.FileSizeUnit.AUTO),
+            1000.0,
+        )
 
     def test_size_auto(self) -> None:
-        self.assertEqual(self.file_size.size(fs.FileSizeUnit.AUTO), "0.002MB")
+        self.assertEqual(self.file_size.size(fs.FileSizeUnit.AUTO), "2.0KB")
 
     def test_size_kb(self) -> None:
         self.assertEqual(self.file_size.size(fs.FileSizeUnit.KB), "2.0KB")
@@ -55,7 +58,7 @@ class FileSizeTest(TestCase):
         self.assertTrue(self.file_size == fs.FileSize(2000))
 
     def test_str(self) -> None:
-        self.assertEqual(str(self.file_size), "0.002MB")
+        self.assertEqual(str(self.file_size), "2.0KB")
 
     def test_repr(self) -> None:
-        self.assertEqual(repr(self.file_size), "0.002MB")
+        self.assertEqual(repr(self.file_size), "2.0KB")

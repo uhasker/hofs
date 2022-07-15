@@ -1,7 +1,7 @@
 import json
-from typing import List, Dict, Union
+from typing import Dict, List, Union
 
-from hofs import HofsException
+from hofs.exceptions.exceptions import HofsException
 
 
 class Table:
@@ -178,3 +178,10 @@ class Table:
 
     def __repr__(self) -> str:
         return json.dumps({"cols": self._cols})
+
+
+def table_from_rows(cols: List[str], rows: List[List[str]]) -> Table:
+    table = Table(cols)
+    for row in rows:
+        table.add_row(row)
+    return table
