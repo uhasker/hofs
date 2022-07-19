@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: '3.9'
       - name: install code check requirements
-        run: pip install black flake8 mypy radon
+        run: pip install black isort flake8 mypy radon
       - name: check code formatting with black
         run: black --check .
       - name: check imports with isort
