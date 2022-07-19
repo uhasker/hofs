@@ -1,4 +1,3 @@
-import json
 from typing import Dict, List, Union
 
 from hofs.exceptions.exceptions import HofsException
@@ -165,7 +164,7 @@ class Table:
             + "\n"
         )
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         col_ljust_vals = {}
         for col_name, col in self._cols.items():
             values = self.col_by_name(col_name) + [col_name]
@@ -175,9 +174,6 @@ class Table:
         for row_idx in range(len(self)):
             s += self.__col_str(col_ljust_vals, row_idx)
         return s
-
-    def __repr__(self) -> str:
-        return json.dumps({"cols": self._cols})
 
 
 def table_from_rows(cols: List[str], rows: List[List[str]]) -> Table:

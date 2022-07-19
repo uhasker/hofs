@@ -13,10 +13,6 @@ class FileLike(ABC):
         self.name = file_like_name(self.path)
 
     @abstractmethod
-    def __str__(self) -> str:
-        raise NotImplementedError  # pragma: no cover
-
-    @abstractmethod
     def __repr__(self) -> str:
         raise NotImplementedError  # pragma: no cover
 

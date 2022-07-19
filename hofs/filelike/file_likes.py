@@ -2,19 +2,18 @@ import datetime
 import os
 import re
 from enum import Enum
-from typing import Iterator, List, Union, Any
+from typing import Any, Iterator, List, Union
 
 from hofs.common.functional import FunctionalIterator
 from hofs.exceptions.exceptions import HofsException
 from hofs.filelike.file_like import FileLike
 from hofs.filesize.file_size import FileSize
-from hofs.paths.paths import (
-    dir_exists,
-    file_exists,
-    path_matches,
+from hofs.paths.matches import (
+    path_matches_base,
     path_matches_compiled_regex,
     path_matches_glob,
 )
+from hofs.paths.paths import dir_exists, file_exists
 
 
 class File(FileLike):
@@ -92,9 +91,6 @@ class File(FileLike):
 
     def __lt__(self, other: "File") -> bool:
         return self.size < other.size
-
-    def __str__(self) -> str:
-        return repr(self)
 
     def __repr__(self) -> str:
         return f'File("{self.path}")'
@@ -198,9 +194,6 @@ class Dir(FileLike):
             _FileTreeWalkIterator(self.path, _FileTreeWalkIteratorKind.DIRS_ONLY)
         )
 
-    def __str__(self) -> str:
-        return repr(self)
-
     def __repr__(self) -> str:
         return f'Dir("{self.path}")'
 
@@ -264,7 +257,7 @@ class FileIterator(FunctionalIterator["File"]):
         :return: A file iterator containing the included files.
         """
         return FileIterator(
-            self.filter(lambda file: path_matches(file.path, file_likes))
+            self.filter(lambda file: path_matches_base(file.path, file_likes))
         )
 
     def exclude(self, file_likes: Union[str, List[str]]) -> "FileIterator":
@@ -275,7 +268,7 @@ class FileIterator(FunctionalIterator["File"]):
         :return: A file iterator containing the non-excluded files.
         """
         return FileIterator(
-            self.filter(lambda file: not path_matches(file.path, file_likes))
+            self.filter(lambda file: not path_matches_base(file.path, file_likes))
         )
 
     def include_or_exclude(
@@ -295,11 +288,23 @@ class FileIterator(FunctionalIterator["File"]):
         return self.include(file_likes) if include else self.exclude(file_likes)
 
     def include_glob(self, patterns: Union[str, List[str]]) -> "FileIterator":
+        """
+        Include all files that match a given list of globs.
+
+        :param patterns: The list of globs.
+        :return: A file iterator containing the included files.
+        """
         return FileIterator(
             self.filter(lambda file: path_matches_glob(file.path, patterns))
         )
 
     def exclude_glob(self, patterns: Union[str, List[str]]) -> "FileIterator":
+        """
+        Exclude all files that match a given list of globs.
+
+        :param patterns: The list of globs.
+        :return: A file iterator containing the non-excluded files.
+        """
         return FileIterator(
             self.filter(lambda file: not path_matches_glob(file.path, patterns))
         )
@@ -307,9 +312,22 @@ class FileIterator(FunctionalIterator["File"]):
     def include_or_exclude_glob(
         self, patterns: Union[str, List[str]], include: bool
     ) -> "FileIterator":
+        """
+        Include or exclude globs that match a given list of file-like objects.
+
+        :param patterns: The list of globs.
+        :param include: True, if patterns should be included, False otherwise.
+        :return: A file iterator containing the non-excluded files.
+        """
         return self.include_glob(patterns) if include else self.exclude_glob(patterns)
 
     def include_regex(self, regexes: Union[str, List[str]]) -> "FileIterator":
+        """
+        Include all files that match one of the given regexes.
+
+        :param regexes: The list of regexes.
+        :return: A file iterator containing the included files.
+        """
         compiled_regexes = [re.compile(regex) for regex in regexes]
         return FileIterator(
             self.filter(
@@ -318,6 +336,12 @@ class FileIterator(FunctionalIterator["File"]):
         )
 
     def exclude_regex(self, regexes: Union[str, List[str]]) -> "FileIterator":
+        """
+        Exclude all files that match one of the given regexes.
+
+        :param regexes: The list of regexes.
+        :return: A file iterator containing the non-excluded files.
+        """
         compiled_regexes = [re.compile(regex) for regex in regexes]
         return FileIterator(
             self.filter(
@@ -330,6 +354,13 @@ class FileIterator(FunctionalIterator["File"]):
     def include_or_exclude_regex(
         self, regexes: Union[str, List[str]], include: bool
     ) -> "FileIterator":
+        """
+        Include or exclude all files match one of the given regexes.
+
+        :param regexes: The list of regexes.
+        :param include: True, if regexes should be included, False otherwise.
+        :return: A file iterator containing the non-excluded files.
+        """
         return self.include_regex(regexes) if include else self.exclude_regex(regexes)
 
     text_file_iterator: Any

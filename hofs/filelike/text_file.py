@@ -70,9 +70,6 @@ class TextFile(File):
 
     lc = line_count
 
-    def __str__(self) -> str:
-        return repr(self)
-
     def __repr__(self) -> str:
         return f"TextFile({self.path})"
 

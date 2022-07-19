@@ -21,6 +21,8 @@ jobs:
         run: pip install black flake8 mypy radon
       - name: check code formatting with black
         run: black --check .
+      - name: check imports with isort
+        run: isort --profile black -c .
       - name: check code quality with flake8 and radon
         run: flake8 --ignore=E501,W503 hofs test --radon-max-cc 10
       - name: check types with mypy

@@ -10,6 +10,8 @@ Welcome to hofs's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   basics
+   recipes
    api
 
 

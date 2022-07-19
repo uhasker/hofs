@@ -5,7 +5,7 @@ import hofs as fs
 parser = argparse.ArgumentParser(description="Get project statistics.")
 parser.add_argument("--dir", type=str, required=True, help="Project directory.")
 parser.add_argument(
-    "--ext", type=str, required=True, help="File extension to look for."
+    "--globs", type=str, required=True, help="Globs to look for (separated by comma)."
 )
 group = parser.add_mutually_exclusive_group()
 group.add_argument(
@@ -17,7 +17,7 @@ group.add_argument(
 args = parser.parse_args()
 
 project_dir = args.dir
-ext = args.ext
+globs = args.globs.split(",")
 print(args.include, args.exclude)
 if args.include is not None:
     include = True
@@ -33,7 +33,7 @@ else:  # elif args.exclude is not None
 files = (
     fs.Dir(project_dir)
     .files.include_or_exclude(included_or_excluded_dirs, include)
-    .filter_extension(ext)
+    .filter_path_glob(globs)
     .text_file_iterator()
 )
 

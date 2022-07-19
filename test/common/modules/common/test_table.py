@@ -79,7 +79,7 @@ class TestTable(TestCase):
     def test_repr(self) -> None:
         self.assertEqual(
             repr(self.table),
-            '{"cols": {"Col1": ["A", "D"], "Col2": ["B", "E"], "Col3": ["C", "F"]}}',
+            "Col1 Col2 Col3 \nA    B    C    \nD    E    F    \n",
         )
 
     def test_table_from_rows(self) -> None:

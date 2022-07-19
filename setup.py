@@ -1,6 +1,6 @@
 import pathlib
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 HERE = pathlib.Path(__file__).parent
 
@@ -9,9 +9,9 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name="hofs",
-    version="0.1.0",
+    version="0.2.0",
     description="Higher-order functions for the filesystem",
-    packages=["hofs"],
+    packages=find_packages(),
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/uhasker/hofs",

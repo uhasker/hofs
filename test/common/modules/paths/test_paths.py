@@ -11,6 +11,7 @@ from test.test_fs_values import (
 from unittest import TestCase
 
 import hofs as fs
+import hofs.paths.matches
 
 
 class TestPath(TestCase):
@@ -74,33 +75,43 @@ class TestPath(TestCase):
     def test_path_is_relative(self) -> None:
         self.assertFalse(fs.path_is_relative(A_TXT_PATH))
 
-    def test_path_matches(self) -> None:
-        self.assertTrue(fs.path_matches(SUB_DIR_PATH, BASE_DIR_PATH))
+    def test_path_matches_base_str(self) -> None:
+        self.assertTrue(
+            hofs.paths.matches.path_matches_base(SUB_DIR_PATH, BASE_DIR_PATH)
+        )
 
-    def test_path_matches_one_of(self) -> None:
-        self.assertTrue(fs.path_matches(SUB_DIR_PATH, [BASE_DIR_PATH]))
+    def test_path_matches_base(self) -> None:
+        self.assertTrue(
+            hofs.paths.matches.path_matches_base(SUB_DIR_PATH, [BASE_DIR_PATH])
+        )
 
     def test_path_matches_regex_str(self) -> None:
-        self.assertTrue(fs.path_matches_regex(A_TXT_PATH, r".*a\.txt"))
+        self.assertTrue(hofs.paths.matches.path_matches_regex(A_TXT_PATH, r".*a\.txt"))
 
     def test_path_matches_regex(self) -> None:
-        self.assertTrue(fs.path_matches_regex(A_TXT_PATH, [r".*a\.txt"]))
+        self.assertTrue(
+            hofs.paths.matches.path_matches_regex(A_TXT_PATH, [r".*a\.txt"])
+        )
 
     def test_path_matches_compiled_regex_pattern(self) -> None:
         self.assertTrue(
-            fs.path_matches_compiled_regex(A_TXT_PATH, re.compile(r".*a\.txt"))
+            hofs.paths.matches.path_matches_compiled_regex(
+                A_TXT_PATH, re.compile(r".*a\.txt")
+            )
         )
 
     def test_path_matches_compiled_regex(self) -> None:
         self.assertTrue(
-            fs.path_matches_compiled_regex(A_TXT_PATH, [re.compile(r".*a\.txt")])
+            hofs.paths.matches.path_matches_compiled_regex(
+                A_TXT_PATH, [re.compile(r".*a\.txt")]
+            )
         )
 
     def test_path_matches_glob_pattern(self) -> None:
-        self.assertTrue(fs.path_matches_glob(A_TXT_PATH, "*/a.txt"))
+        self.assertTrue(hofs.paths.matches.path_matches_glob(A_TXT_PATH, "*/a.txt"))
 
     def test_path_matches_glob(self) -> None:
-        self.assertTrue(fs.path_matches_glob(A_TXT_PATH, ["*/a.txt"]))
+        self.assertTrue(hofs.paths.matches.path_matches_glob(A_TXT_PATH, ["*/a.txt"]))
 
     def test_file_like_name_file(self) -> None:
         self.assertEqual(fs.file_like_name(A_TXT_PATH), "a.txt")

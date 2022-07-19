@@ -67,8 +67,5 @@ class FileSize:
     def __eq__(self, other: Any) -> bool:
         return int(self) == int(other)
 
-    def __str__(self) -> str:
-        return repr(self)
-
     def __repr__(self) -> str:
         return self.size()

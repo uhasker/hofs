@@ -15,9 +15,6 @@ class FileSizeUnit(Enum):
     GIB = 8
     TIB = 9
 
-    def __str__(self) -> str:
-        return repr(self)
-
     def __repr__(self) -> str:
         if self == FileSizeUnit.AUTO:
             raise HofsException("FileSizeUnit.AUTO has no string representation")
@@ -33,3 +30,6 @@ class FileSizeUnit(Enum):
             FileSizeUnit.GIB: "GiB",
             FileSizeUnit.TIB: "TiB",
         }[self]
+
+    def __str__(self) -> str:
+        return repr(self)
