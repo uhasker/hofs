@@ -53,4 +53,4 @@ pip install hofs
 
 ## Documentation
 
-See the [documentation](uhasker.github.io/hofs) for further information.
+See the [documentation](https://uhasker.github.io/hofs) for further information.
