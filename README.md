@@ -36,7 +36,6 @@ For example here is how we could perform our task by explicitly calling the resp
 ```python
 import hofs as fs
 
-# Long form (for when you need to use the library in a codebase)
 fs.Dir(".").files.filter(lambda f: f.extension == "txt").map(lambda f: f.text_file().line_count).sum()
 ```
 
